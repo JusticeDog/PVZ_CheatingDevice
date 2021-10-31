@@ -141,9 +141,6 @@ change_sun PROC,
 					mov		success,0
 				.ENDIF
 				.IF		success == 0	;获取失败
-					mov	esi,success
-					mov	edi,0
-					mov	[esi],edi
 					jmp	quit_change_sun
 				.ENDIF
 				;修改阳光
