@@ -225,6 +225,72 @@ quit_change_money:
 				ret
 change_money ENDP
 
+; 函数change_cardCD修改卡槽冷却，如果成功就eax==1，否则eax==0
+change_cardCD PROC
+				local	new_cardCD_value:DWORD			; 的新数值
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	cardCD_addr:DWORD		; 存放金钱的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	cardCD_value:DWORD		; 金钱的当前值
+
+				push	ebx
+				push	esi
+				push	edi
+				
+				mov		new_cardCD_value,10000
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_change_cardCD
+				.ENDIF
+				;修改金钱
+				mov		esi,base_addr
+				mov		cardCD_addr, esi
+				add		cardCD_addr, 00331C50h			; cardCD_addr 是金钱基址
+				; 01 读取内存,并且直接用读到的数值更新
+				invoke	ReadProcessMemory, hWnd_pro, cardCD_addr, addr cardCD_addr, TYPE DWORD, 0
+				mov		esi, cardCD_addr
+				add		esi, 868h
+				mov		cardCD_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新
+				invoke	ReadProcessMemory, hWnd_pro, cardCD_addr, addr cardCD_addr, TYPE DWORD, 0
+				mov		esi, cardCD_addr
+				add		esi, 15ch
+				mov		cardCD_addr, esi
+				; 03 读取内存,并且直接用读到的数值更新
+				invoke	ReadProcessMemory, hWnd_pro, cardCD_addr, addr cardCD_addr, TYPE DWORD, 0
+				mov		esi, cardCD_addr
+				add		esi, 4ch
+				mov		cardCD_addr, esi
+				; 04 读取内存,此时cardCD_addr处的内容就是第一个卡槽的cd数值
+				; 加 50h 是下一个卡槽
+				invoke	ReadProcessMemory, hWnd_pro, cardCD_addr, addr cardCD_value, TYPE DWORD, 0
+				; 05 写入内存, 循环多次
+				mov		ecx, 10
+cardCD_L1:
+				push	ecx
+				invoke	WriteProcessMemory, hWnd_pro, cardCD_addr, addr new_cardCD_value, TYPE DWORD, 0
+				mov		edi, cardCD_addr
+				add		edi, 50h			; 两个卡槽CD间隔是 0x50
+				mov		cardCD_addr, edi
+				pop		ecx
+				loop	cardCD_L1
+
+quit_change_cardCD:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+change_cardCD ENDP
+
 main PROC,
 				var1:DWORD
 				local	new_sun_value:SDWORD			; 阳光的新数值
@@ -238,11 +304,19 @@ main PROC,
 				;invoke	change_sun,new_sun_value
 
 
-				mov		new_money_value, 5000
-				invoke	printf, offset msg_input_new_money
-				invoke	scanf, offset msg_scanf_int, addr new_money_value
-				mov		success,0
-				invoke	change_money,new_money_value
+				;mov		new_money_value, 5000
+				;invoke	printf, offset msg_input_new_money
+				;invoke	scanf, offset msg_scanf_int, addr new_money_value
+				;mov		success,0
+				;invoke	change_money,new_money_value
+
+				mov	ecx,10
+L_2:
+				pushad
+				invoke	printf,offset msg_debug, ecx
+				invoke	change_cardCD
+				popad
+				loop	L_2
 
 				
 				ret
