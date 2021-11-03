@@ -226,7 +226,7 @@ quit_change_money:
 change_money ENDP
 
 ; 函数change_cardCD修改卡槽冷却，如果成功就eax==1，否则eax==0
-change_cardCD PROC
+freeze_cardCD PROC
 				local	new_cardCD_value:DWORD			; 的新数值
 				local	base_addr:DWORD		; 存放基址
 				local	hWnd_pro:DWORD		; 存放进程的句柄
@@ -248,7 +248,7 @@ change_cardCD PROC
 					mov		success,0
 				.ENDIF
 				.IF		success == 0	;获取失败
-					jmp	quit_change_cardCD
+					jmp	quit_freeze_cardCD
 				.ENDIF
 				;修改金钱
 				mov		esi,base_addr
@@ -283,13 +283,214 @@ cardCD_L1:
 				pop		ecx
 				loop	cardCD_L1
 
-quit_change_cardCD:
+quit_freeze_cardCD:
 				mov		eax, success		; 返回值设置为是否成功
 				pop		edi
 				pop		esi
 				pop		ebx
 				ret
-change_cardCD ENDP
+freeze_cardCD ENDP
+
+; 无限杀虫剂
+infinite_bug_spary PROC
+				local	new_target_value:DWORD
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	target_addr:DWORD		; 存放目标的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	target_value:DWORD		; 目标的当前值
+				push	ebx
+				push	esi
+				push	edi
+				mov		new_target_value, 1020
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_infinite_bug_spary
+				.ENDIF
+				;修改目标
+				mov		esi,base_addr
+				mov		target_addr, esi
+				add		target_addr, 00331C50h			; target_addr 是目标基址
+				; 01 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 94ch
+				mov		target_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 228h
+				mov		target_addr, esi
+				; 03 读取内存,此时target_addr处的内容就是目标的数值
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_value, TYPE DWORD, 0
+				; 04 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)target_addr, &new_target_value, 4, 0); //修改目标
+				invoke	WriteProcessMemory, hWnd_pro, target_addr, addr new_target_value, TYPE DWORD, 0
+quit_infinite_bug_spary:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+infinite_bug_spary ENDP
+
+; 无限肥料
+infinite_fertilizer PROC
+				local	new_target_value:DWORD
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	target_addr:DWORD		; 存放目标的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	target_value:DWORD		; 目标的当前值
+				push	ebx
+				push	esi
+				push	edi
+				mov		new_target_value, 1020
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_infinite_fertilizer
+				.ENDIF
+				;修改目标
+				mov		esi,base_addr
+				mov		target_addr, esi
+				add		target_addr, 00331C50h			; target_addr 是目标基址
+				; 01 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 94ch
+				mov		target_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 224h
+				mov		target_addr, esi
+				; 03 读取内存,此时target_addr处的内容就是目标的数值
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_value, TYPE DWORD, 0
+				; 04 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)target_addr, &new_target_value, 4, 0); //修改目标
+				invoke	WriteProcessMemory, hWnd_pro, target_addr, addr new_target_value, TYPE DWORD, 0
+quit_infinite_fertilizer:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+infinite_fertilizer ENDP
+
+; 无限巧克力
+infinite_chocolates PROC
+				local	new_target_value:DWORD
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	target_addr:DWORD		; 存放目标的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	target_value:DWORD		; 目标的当前值
+				push	ebx
+				push	esi
+				push	edi
+				mov		new_target_value, 1020
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_infinite_chocolates
+				.ENDIF
+				;修改目标
+				mov		esi,base_addr
+				mov		target_addr, esi
+				add		target_addr, 00331C50h			; target_addr 是目标基址
+				; 01 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 94ch
+				mov		target_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 254h
+				mov		target_addr, esi
+				; 03 读取内存,此时target_addr处的内容就是目标的数值
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_value, TYPE DWORD, 0
+				; 04 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)target_addr, &new_target_value, 4, 0); //修改目标
+				invoke	WriteProcessMemory, hWnd_pro, target_addr, addr new_target_value, TYPE DWORD, 0
+quit_infinite_chocolates:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+infinite_chocolates ENDP
+
+; 无限树的肥料
+infinite_tree_food PROC
+				local	new_target_value:DWORD
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	target_addr:DWORD		; 存放目标的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	target_value:DWORD		; 目标的当前值
+				push	ebx
+				push	esi
+				push	edi
+				mov		new_target_value, 1020
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_infinite_tree_food
+				.ENDIF
+				;修改目标
+				mov		esi,base_addr
+				mov		target_addr, esi
+				add		target_addr, 00331C50h			; target_addr 是目标基址
+				; 01 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 94ch
+				mov		target_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新target_addr
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_addr, TYPE DWORD, 0
+				mov		esi, target_addr
+				add		esi, 25Ch
+				mov		target_addr, esi
+				; 03 读取内存,此时target_addr处的内容就是目标的数值
+				invoke	ReadProcessMemory, hWnd_pro, target_addr, addr target_value, TYPE DWORD, 0
+				; 04 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)target_addr, &new_target_value, 4, 0); //修改目标
+				invoke	WriteProcessMemory, hWnd_pro, target_addr, addr new_target_value, TYPE DWORD, 0
+quit_infinite_tree_food:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+infinite_tree_food ENDP
+
 
 main PROC,
 				var1:DWORD
@@ -314,7 +515,10 @@ main PROC,
 L_2:
 				pushad
 				invoke	printf,offset msg_debug, ecx
-				invoke	change_cardCD
+				invoke	infinite_bug_spary
+				invoke	infinite_fertilizer
+				invoke	infinite_chocolates
+				invoke	infinite_tree_food
 				popad
 				loop	L_2
 
