@@ -122,7 +122,7 @@ get_pvz_base_addr ENDP
 
 ; 函数change_sun需要一个参数表示新的阳光，如果成功就eax==1，否则eax==0
 change_sun PROC,
-				new_sun_value:SDWORD			; 阳光的新数值
+				new_sun_value:DWORD			; 阳光的新数值
 				local	base_addr:DWORD		; 存放基址
 				local	hWnd_pro:DWORD		; 存放进程的句柄
 				local	sun_addr:DWORD		; 存放阳光的地址
@@ -175,7 +175,7 @@ change_sun ENDP
 
 ; 函数change_money需要一个参数表示新的金钱，如果成功就eax==1，否则eax==0
 change_money PROC,
-				new_money_value:SDWORD			; 金钱的新数值
+				new_money_value:DWORD			; 金钱的新数值
 				local	base_addr:DWORD		; 存放基址
 				local	hWnd_pro:DWORD		; 存放进程的句柄
 				local	money_addr:DWORD		; 存放金钱的地址
