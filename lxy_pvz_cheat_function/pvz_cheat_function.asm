@@ -30,6 +30,8 @@ msg_debug           byte    "debug:%d", 0ah, 0dh, 0
 msg_scanf_int		byte	"%d",0
 msg_input_new_sun	byte	"请输入新的阳光数值：",0ah,0dh,0
 msg_input_new_money	byte	"请输入新的金钱数值：",0ah,0dh,0
+msg_input_new_tree_height	byte	"请输入新的智慧树高度：",0ah,0dh,0
+msg_input_cards_num	byte	"请输入新的卡槽数量：",0ah,0dh,0
 ;szMsg           byte    "请输入两个数字，用空格隔开:", 0ah, 0dh, 0
 ;scanMsg         byte    "%d %d", 0
 ;ansMsg          byte    "结果是%d", 0ah, 0dh, 0  ; 0ah 0dh是回车换行
@@ -291,6 +293,63 @@ quit_freeze_cardCD:
 				ret
 freeze_cardCD ENDP
 
+; 函数change_cardsNum需要一个参数表示新的卡槽数量，如果成功就eax==1，否则eax==0
+change_cardsNum PROC,
+				new_cardsNum_value:DWORD			; 卡槽数量的新数值
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	cardsNum_addr:DWORD		; 存放卡槽数量的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	cardsNum_value:DWORD		; 卡槽数量的当前值
+
+				push	ebx
+				push	esi
+				push	edi
+				
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_change_cardsNum
+				.ENDIF
+				;修改卡槽数量
+				mov		esi,base_addr
+				mov		cardsNum_addr, esi
+				add		cardsNum_addr, 00331C50h			; cardsNum_addr 是卡槽数量基址
+				; 01 读取内存,并且直接用读到的数值更新cardsNum_addr
+				invoke	ReadProcessMemory, hWnd_pro, cardsNum_addr, addr cardsNum_addr, TYPE DWORD, 0
+				mov		esi, cardsNum_addr
+				add		esi, 868h
+				mov		cardsNum_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新cardsNum_addr
+				invoke	ReadProcessMemory, hWnd_pro, cardsNum_addr, addr cardsNum_addr, TYPE DWORD, 0
+				mov		esi, cardsNum_addr
+				add		esi, 15Ch
+				mov		cardsNum_addr, esi
+				; 03 读取内存,并且直接用读到的数值更新cardsNum_addr
+				invoke	ReadProcessMemory, hWnd_pro, cardsNum_addr, addr cardsNum_addr, TYPE DWORD, 0
+				mov		esi, cardsNum_addr
+				add		esi, 24h
+				mov		cardsNum_addr, esi
+				; 04 读取内存,此时cardsNum_addr处的内容就是卡槽数量的数值
+				invoke	ReadProcessMemory, hWnd_pro, cardsNum_addr, addr cardsNum_value, TYPE DWORD, 0
+				; 05 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)cardsNum_addr, &new_cardsNum_value, 4, 0); //修改卡槽数量
+				invoke	WriteProcessMemory, hWnd_pro, cardsNum_addr, addr new_cardsNum_value, TYPE DWORD, 0
+
+quit_change_cardsNum:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+change_cardsNum ENDP
+
 ; 无限杀虫剂
 infinite_bug_spary PROC
 				local	new_target_value:DWORD
@@ -491,11 +550,63 @@ quit_infinite_tree_food:
 				ret
 infinite_tree_food ENDP
 
+; 函数change_tree_height需要一个参数表示新的智慧树高度，如果成功就eax==1，否则eax==0
+change_tree_height PROC,
+				new_tree_height_value:DWORD			; 智慧树高度的新数值
+				local	base_addr:DWORD		; 存放基址
+				local	hWnd_pro:DWORD		; 存放进程的句柄
+				local	tree_height_addr:DWORD		; 存放智慧树高度的地址
+				local	success:DWORD	;获取基址和句柄是否成功
+				local	tree_height_value:DWORD		; 智慧树高度的当前值
+
+				push	ebx
+				push	esi
+				push	edi
+				
+				mov		success,1	;默认成功
+				invoke	get_pvz_base_addr,addr hWnd_pro, addr base_addr
+				.IF		hWnd_pro == 0
+					mov		success,0
+				.ENDIF
+				.IF		base_addr == 0
+					mov		success,0
+				.ENDIF
+				.IF		success == 0	;获取失败
+					jmp	quit_change_tree_height
+				.ENDIF
+				;修改智慧树高度
+				mov		esi,base_addr
+				mov		tree_height_addr, esi
+				add		tree_height_addr, 00331C50h			; tree_height_addr 是智慧树高度基址
+				; 01 读取内存,并且直接用读到的数值更新tree_height_addr
+				invoke	ReadProcessMemory, hWnd_pro, tree_height_addr, addr tree_height_addr, TYPE DWORD, 0
+				mov		esi, tree_height_addr
+				add		esi, 94Ch
+				mov		tree_height_addr, esi
+				; 02 读取内存,并且直接用读到的数值更新tree_height_addr
+				invoke	ReadProcessMemory, hWnd_pro, tree_height_addr, addr tree_height_addr, TYPE DWORD, 0
+				mov		esi, tree_height_addr
+				add		esi, 120h
+				mov		tree_height_addr, esi
+				; 03 读取内存,此时tree_height_addr处的内容就是智慧树高度的数值
+				invoke	ReadProcessMemory, hWnd_pro, tree_height_addr, addr tree_height_value, TYPE DWORD, 0
+				; 04 写入内存
+				; WriteProcessMemory(hpro, (LPVOID)tree_height_addr, &new_tree_height_value, 4, 0); //修改智慧树高度
+				invoke	WriteProcessMemory, hWnd_pro, tree_height_addr, addr new_tree_height_value, TYPE DWORD, 0
+
+quit_change_tree_height:
+				mov		eax, success		; 返回值设置为是否成功
+				pop		edi
+				pop		esi
+				pop		ebx
+				ret
+change_tree_height ENDP
 
 main PROC,
 				var1:DWORD
 				local	new_sun_value:SDWORD			; 阳光的新数值
 				local	new_money_value:SDWORD			; money的新数值
+				local	new_tree_height:SDWORD			; 阳光的新数值
 				local	success:DWORD				; 是否成功
 
 				;mov		new_sun_value, 5000
@@ -511,18 +622,25 @@ main PROC,
 				;mov		success,0
 				;invoke	change_money,new_money_value
 
-				mov	ecx,10
+				;mov	ecx,10
 L_2:
-				pushad
-				invoke	printf,offset msg_debug, ecx
-				invoke	infinite_bug_spary
-				invoke	infinite_fertilizer
-				invoke	infinite_chocolates
-				invoke	infinite_tree_food
-				popad
-				loop	L_2
+				;pushad
+				;invoke	printf,offset msg_debug, ecx
+				;invoke	infinite_bug_spary
+				;invoke	infinite_fertilizer
+				;invoke	infinite_chocolates
+				;invoke	infinite_tree_food
+				;popad
+				;loop	L_2
+
+				mov		new_tree_height, 5000
+				invoke	printf, offset msg_input_cards_num
+				invoke	scanf, offset msg_scanf_int, addr new_tree_height
+				mov		success,0
+				invoke	change_cardsNum,new_tree_height
 
 				
+
 				ret
 main ENDP
 
